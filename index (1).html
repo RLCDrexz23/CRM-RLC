@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>RLC Premier Cleaning — CRM</title>
+  <style>
+    * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', 'Inter', 'Roboto', sans-serif; }
+    body { background: #0a0a0a; margin: 0; padding: 20px; min-height: 100vh; }
+
+    .login-container { max-width: 420px; margin: 60px auto; background: #111; border-radius: 28px; border: 1px solid #2a2a2a; padding: 36px 32px; text-align: center; }
+    .logo-wrap { margin-bottom: 24px; }
+    .logo-wrap img { width: 130px; height: auto; display: block; margin: 0 auto 14px; }
+    .logo-wrap h1 { font-size: 20px; font-weight: 700; color: #c9b97a; margin: 0 0 4px; letter-spacing: 0.06em; }
+    .logo-wrap p { color: #555; font-size: 12px; margin: 0; letter-spacing: 0.1em; text-transform: uppercase; }
+    .login-container select, .login-container input { width: 100%; padding: 13px 16px; margin: 7px 0; border-radius: 50px; border: 1px solid #2a2a2a; font-size: 15px; background: #1a1a1a; color: #e0e0e0; -webkit-appearance: none; }
+    .login-container select:focus, .login-container input:focus { outline: none; border-color: #c9b97a; }
+    .login-btn { width: 100%; padding: 14px; margin-top: 12px; border-radius: 50px; border: none; background: #c9b97a; color: #0a0a0a; font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.04em; }
+    .login-btn:hover { opacity: 0.9; }
+    .login-error { color: #e05555; font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+    .app-container { display: none; max-width: 1400px; margin: 0 auto; }
+    .crm-header { display: flex; align-items: center; justify-content: space-between; background: #111; border: 1px solid #2a2a2a; padding: 12px 24px; border-radius: 50px; margin-bottom: 22px; flex-wrap: wrap; gap: 10px; }
+    .header-left { display: flex; align-items: center; gap: 10px; }
+    .header-logo { width: 32px; height: 32px; object-fit: contain; }
+    .header-title { font-size: 15px; font-weight: 700; color: #c9b97a; letter-spacing: 0.04em; }
+    .role-badge { background: #1e1e1e; border: 1px solid #2a2a2a; color: #c9b97a; padding: 6px 16px; border-radius: 40px; font-size: 12px; font-weight: 600; }
+    .logout-btn { background: #1e1e1e; border: 1px solid #2a2a2a; color: #888; padding: 7px 18px; border-radius: 40px; font-size: 13px; cursor: pointer; }
+    .logout-btn:hover { background: #2a2a2a; }
+
+    .main-tabs { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+    .main-tab { padding: 9px 22px; border-radius: 40px; border: 1px solid #2a2a2a; background: #111; cursor: pointer; font-size: 14px; font-weight: 600; color: #555; }
+    .main-tab.active { background: #c9b97a; color: #0a0a0a; border-color: #c9b97a; }
+    .tab-section { display: none; }
+    .tab-section.active { display: block; }
+
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 18px; margin-bottom: 18px; }
+    .card { background: #111; border-radius: 22px; padding: 20px 22px; border: 1px solid #2a2a2a; }
+    .full-width { grid-column: span 2; }
+    .card h3 { margin: 0 0 14px; font-weight: 700; color: #c9b97a; font-size: 14px; border-left: 4px solid #c9b97a; padding-left: 11px; letter-spacing: 0.03em; }
+
+    .finance-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .stat-box { background: #1a1a1a; border-radius: 18px; padding: 14px; flex: 1; min-width: 110px; text-align: center; border: 1px solid #2a2a2a; }
+    .stat-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: #555; }
+    .stat-number { font-size: 24px; font-weight: 800; color: #c9b97a; margin-top: 5px; }
+
+    .booking-table { width: 100%; border-collapse: collapse; }
+    .booking-table th, .booking-table td { text-align: left; padding: 11px 8px; border-bottom: 1px solid #1a1a1a; font-size: 13px; color: #bbb; }
+    .booking-table th { color: #c9b97a; font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; }
+    .booking-table tr:last-child td { border-bottom: none; }
+    .paid-badge { background: #0f2010; color: #4caf6e; padding: 3px 11px; border-radius: 40px; font-size: 11px; font-weight: 600; }
+    .pending-badge { background: #2a1e08; color: #c9a23a; padding: 3px 11px; border-radius: 40px; font-size: 11px; font-weight: 600; }
+
+    .job-form { display: flex; flex-wrap: wrap; gap: 8px; background: #1a1a1a; padding: 14px; border-radius: 18px; margin-bottom: 18px; }
+    .job-form input { flex: 1; min-width: 120px; padding: 9px 13px; border-radius: 40px; border: 1px solid #2a2a2a; background: #111; color: #ddd; font-size: 13px; }
+    .job-form input:focus { outline: none; border-color: #c9b97a; }
+    .add-job-btn { padding: 9px 18px; border-radius: 40px; border: none; background: #c9b97a; color: #0a0a0a; font-weight: 700; font-size: 13px; cursor: pointer; white-space: nowrap; }
+
+    .job-item { background: #1a1a1a; border-radius: 14px; padding: 11px 14px; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 7px; border: 1px solid #222; }
+    .job-item strong { color: #c9b97a; }
+    .job-item span { color: #777; font-size: 12px; }
+    .remove-btn { background: #2a1111; color: #e05555; border: 1px solid #3a1111; border-radius: 40px; padding: 4px 13px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .action-btn { background: #0f2010; color: #4caf6e; border: 1px solid #1e3a1e; border-radius: 40px; padding: 4px 13px; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 4px; }
+    hr { border: none; border-top: 1px solid #1e1e1e; margin: 14px 0; }
+
+    .cal-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .cal-nav { display: flex; align-items: center; gap: 12px; }
+    .cal-nav-btn { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 6px 15px; cursor: pointer; font-size: 15px; color: #c9b97a; }
+    .cal-nav-btn:hover { background: #222; }
+    .cal-month-label { font-size: 17px; font-weight: 700; color: #c9b97a; min-width: 170px; text-align: center; }
+    .admin-stats { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .mini-stat { background: #1a1a1a; border-radius: 12px; padding: 10px 14px; flex: 1; min-width: 90px; border: 1px solid #222; }
+    .mini-stat .ms-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.07em; }
+    .mini-stat .ms-val { font-size: 17px; font-weight: 800; margin-top: 2px; color: #c9b97a; }
+    .mini-stat .ms-val.amber { color: #c9a23a; }
+    .grid-head { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 2px; margin-bottom: 2px; }
+    .grid-head div { text-align: center; font-size: 10px; color: #444; padding: 5px 0; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 2px; }
+    .cal-cell { background: #141414; border: 1px solid #1e1e1e; border-radius: 9px; min-height: 96px; padding: 5px; overflow: hidden; }
+    .cal-cell.other-month { opacity: 0.35; }
+    .cal-cell.today { border-color: #c9b97a; border-width: 1.5px; }
+    .cal-cell.clickable { cursor: pointer; }
+    .cal-cell.clickable:hover { background: #1b1a12; }
+    .day-num { font-size: 11px; color: #555; margin-bottom: 3px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+    .today .day-num span:first-child { color: #c9b97a; }
+    .add-plus { width: 15px; height: 15px; border-radius: 50%; background: #2a200a; color: #c9b97a; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+    .day-total { font-size: 10px; font-weight: 700; color: #c9b97a; background: #2a200a; border-radius: 3px; padding: 1px 6px; display: inline-block; margin-bottom: 3px; }
+    .chip { border-radius: 5px; padding: 3px 5px; margin-bottom: 3px; font-size: 10px; line-height: 1.4; }
+    .chip-job { font-size: 9px; background: #2a200a; color: #9a7a20; border-radius: 3px; padding: 1px 4px; margin-bottom: 2px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip-name { font-weight: 700; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chip-bottom { font-size: 9px; display: flex; align-items: center; justify-content: space-between; gap: 3px; margin-top: 2px; }
+    .chip.paid { background: #0e200f; color: #4caf6e; }
+    .chip.pending { background: #261c07; color: #c9a23a; }
+    .mark-btn { font-size: 9px; border: none; border-radius: 3px; padding: 1px 5px; cursor: pointer; background: #c9b97a; color: #0a0a0a; font-weight: 700; white-space: nowrap; }
+    .del-chip-btn { font-size: 9px; border: none; border-radius: 3px; padding: 1px 4px; cursor: pointer; background: #2a1010; color: #e05555; font-weight: 700; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal-box { background: #111; border: 1px solid #2a2a2a; border-radius: 22px; padding: 26px; width: 100%; max-width: 360px; margin: 20px; }
+    .modal-box h3 { font-size: 14px; font-weight: 700; margin: 0 0 14px; color: #c9b97a; border-left: 4px solid #c9b97a; padding-left: 11px; }
+    .modal-box input { width: 100%; padding: 10px 14px; margin-bottom: 8px; border-radius: 40px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #ddd; font-size: 14px; }
+    .modal-box input:focus { outline: none; border-color: #c9b97a; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 6px; }
+    .modal-cancel { flex: 1; padding: 10px; border-radius: 40px; border: 1px solid #2a2a2a; background: #1a1a1a; color: #777; font-size: 14px; cursor: pointer; }
+    .modal-save { flex: 1; padding: 10px; border-radius: 40px; border: none; background: #c9b97a; color: #0a0a0a; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+    @media (max-width: 780px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: span 1; }
+      body { padding: 10px; }
+      .cal-cell { min-height: 56px; padding: 4px; }
+      .chip-job, .chip-bottom { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loginView" class="login-container">
+  <div class="logo-wrap">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBwRXhpZgAATU0AKgAAAAgABAEGAAMAAAABAAIAAAESAAMAAAABAAEAAAEoAAMAAAABAAIAAIdpAAQAAAABAAAAPgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAACKqADAAQAAAABAAABugAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgBugIqAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAAgICAgICAwICAwUDAwMFBgUFBQUGCAYGBgYGCAoICAgICAgKCgoKCgoKCgwMDAwMDA4ODg4ODw8PDw8PDw8PD//bAEMBAgICBAQEBwQEBxALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/dAAQAI//aAAwDAQACEQMRAD8A/n/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/Q/n/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiivr4Q/si+Ovi58IfFfxW0hWSDQFzbRbcm7ZOZAv8Aur+tfJLo8TtHICrISCDwQR1FJST2G0MooopiCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//9H+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAK9D+FPw51z4r+PtG8B+H4jLdapOkeQOEQn5mPoAOTXnlfsB/wAEzf2fF8K+HZ/jT4mttuo6upi09XHMdv8AxOM9C/b2rOrU5Y3LhG7P1C+FPw18N/Cn4c6T8OtEhUWWn24iWQD/AFrhfnY+pNfzp/t//s2/8KU+Lk2v6BbhPDPid5LiDaPliuerp7Z6j8a+AUXca/oN/4KAfZrz9nHV5J415tpRnPqDSUXcuEbs/ALRdRfStUttQjJDQuGGPUV9KfEPwRcfGL4L6P8UNKhM+vaBJ9h1JVGXa3I+Sb6A9a+aNb0W60DWLzRL1dtzaSmNx7jofoRXqPwX+Kd78JfGNr4jtPmtX/AHV1Ee8bp3H15rKpByjZG0JWdjof2cfhre/FH4uaL4fjjZ7GOUXd44HyiCLkgn1PQV6H+2h8ULL4gfFObT9KdX0vQAthFt6M6n52H47v0r2D4qaO/wCyZqGn/EL4bXT2FrqBzc6e7brWaN/mxg8qa+KvG2qS654r1TW5+ZL25klb6sxNZ043ldmkmkkmVlKBQEHAHpX2Tp37OPwyi8FJ4O1K7ml1aBBPqFxH8sa3DLuMe7ptUHGMV+dmr+KNU8R3n27U5mlkPCr2UegFdR4W+KnjTwlAbXSdSeCEnlSqup/BgR+lVODaVhRkrn7z/AX4jfAzwr8B7T4c3mqaBdv9ma0gt5ZIi6ysDtKofVq+UP27vh7oXgH4g6ZJ4bihtLbUrXzJYolCqXBxnA4zivyosPiR4rtLkXP9oSSuDkh1Vh+tav/AAnN9rd7He+M7+41Hy8jL5IA+natFRfKJzvqfsL+xt491LSfhbqFjL8nkXGxGA6ZXp/OvzO8b6Za6X4x1fTbIYhgupFUD0DGrXhv4meL/DN2LqxvpHG7cEfDqc9eDXR+JvEh8Yalca7LZxWl3cLl3j/AImHU4PSp5Gma8yPM6K2Lrwxr1kN11YzRj/aQiseSN42KspBHUEUJiJaKKKYgooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//9L+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAr9hvhbctH8AblVPy/ZZB/wCO1+PNfs78Lpt/wGlTP/LtKP8Ax2uHFfDqdFD4j4VooorpOUKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/9P+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9T+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9X+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9b+f+iiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooA//9k=" alt="RLC Logo">
+    <h1>RLC PREMIER CLEANING</h1>
+    <p>Management System</p>
+  </div>
+  <select id="profileSelect">
+    <option value="admin">Admin — Management</option>
+    <option value="worker">Worker</option>
+  </select>
+  <input type="password" id="passwordInput" placeholder="Enter your password">
+  <button class="login-btn" id="loginBtn">Access CRM</button>
+  <div id="loginError" class="login-error"></div>
+</div>
+
+<div id="appView" class="app-container">
+  <div class="crm-header">
+    <div class="header-left">
+      <img class="header-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBwRXhpZgAATU0AKgAAAAgABAEGAAMAAAABAAIAAAESAAMAAAABAAEAAAEoAAMAAAABAAIAAIdpAAQAAAABAAAAPgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAACKqADAAQAAAABAAABugAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgBugIqAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAAgICAgICAwICAwUDAwMFBgUFBQUGCAYGBgYGCAoICAgICAgKCgoKCgoKCgwMDAwMDA4ODg4ODw8PDw8PDw8PD//bAEMBAgICBAQEBwQEBxALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/dAAQAI//aAAwDAQACEQMRAD8A/n/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKAP/Q/n/ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiivr4Q/si+Ovi58IfFfxW0hWSDQFzbRbcm7ZOZAv8Aur+tfJLo8TtHICrISCDwQR1FJST2G0MooopiCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//9k=" alt="logo">
+      <span class="header-title">RLC PREMIER CLEANING</span>
+    </div>
+    <div class="role-badge" id="roleBadge">Admin</div>
+    <span id="syncStatus" style="font-size:11px;color:#555;letter-spacing:0.04em;">&#9679; synced</span>
+    <button class="logout-btn" id="logoutButton">Logout</button>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab active" id="tabDash" onclick="switchTab('dashboard',this)">Dashboard</button>
+    <button class="main-tab" id="tabCal" onclick="switchTab('calendar',this)">Calendar</button>
+  </div>
+
+  <div id="tab-dashboard" class="tab-section active">
+    <div class="dashboard-grid">
+      <div class="card" id="financeCard"></div>
+      <div class="card" id="addJobCard">
+        <h3>Add New Job</h3>
+        <div class="job-form">
+          <input type="text" id="clientName" placeholder="Client name">
+          <input type="text" id="jobDesc" placeholder="Job description">
+          <input type="date" id="jobDate">
+          <input type="number" id="jobPayment" placeholder="Amount $">
+          <button class="add-job-btn" id="createJobBtn">+ Add Job</button>
+        </div>
+        <hr>
+        <h3>Recent Jobs</h3>
+        <div id="jobListAdmin"></div>
+      </div>
+      <div class="card full-width">
+        <h3>All Bookings</h3>
+        <div style="overflow-x:auto;">
+          <table class="booking-table">
+            <thead><tr><th>Date</th><th>Client</th><th>Job</th><th>Amount</th><th>Status</th><th id="actionColHead">Action</th></tr></thead>
+            <tbody id="bookingTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-calendar" class="tab-section">
+    <div class="card">
+      <div class="cal-top">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="calPrev">&#8592;</button>
+          <div class="cal-month-label" id="calMonthLabel"></div>
+          <button class="cal-nav-btn" id="calNext">&#8594;</button>
+        </div>
+      </div>
+      <div id="adminStats" class="admin-stats"></div>
+      <div class="grid-head"><div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">New Booking</h3>
+    <input type="text" id="mClient" placeholder="Client name">
+    <input type="text" id="mJob" placeholder="Job description">
+    <input type="date" id="mDate">
+    <input type="number" id="mAmt" placeholder="Amount $">
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" onclick="saveModalBooking()">Save Booking</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ADMIN_PASS = 'RLCOFM2026';
+  const WORKER_PASS = 'RLCpremiercleaning2026';
+  let currentRole = null;
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let _cachedData = null;
+  let _syncInterval = null;
+
+  const STORAGE_KEY = 'rlc_crm_v2';
+  const DEFAULT_DATA = { bookings: [], companyProfit: 0, companyWorth: 12500 };
+
+  async function loadDataAsync() {
+    try {
+      const result = await window.storage.get(STORAGE_KEY, true);
+      const parsed = JSON.parse(result.value);
+      _cachedData = parsed;
+      return parsed;
+    } catch(e) {
+      if (!_cachedData) _cachedData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      return _cachedData;
+    }
+  }
+
+  function loadData() {
+    return _cachedData ? _cachedData : JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+
+  async function saveData(d) {
+    _cachedData = d;
+    const el = document.getElementById('syncStatus');
+    if(el) { el.style.color='#c9b97a'; el.textContent='⟳ syncing…'; }
+    try {
+      await window.storage.set(STORAGE_KEY, JSON.stringify(d), true);
+      if(el) { el.style.color='#4caf6e'; el.textContent='✓ synced'; setTimeout(()=>{ if(el){el.style.color='#555';el.textContent='● synced';} },2000); }
+    } catch(e) {
+      if(el) { el.style.color='#e05555'; el.textContent='⚠ sync failed'; }
+      console.error('Sync error:', e);
+    }
+  }
+
+  // Poll for remote changes every 8 seconds while logged in
+  function startSync() {
+    if (_syncInterval) clearInterval(_syncInterval);
+    _syncInterval = setInterval(async () => {
+      if (!currentRole) return;
+      try {
+        const result = await window.storage.get(STORAGE_KEY, true);
+        const remote = JSON.parse(result.value);
+        // Only re-render if data actually changed
+        if (JSON.stringify(remote) !== JSON.stringify(_cachedData)) {
+          _cachedData = remote;
+          renderApp();
+          if (document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+        }
+      } catch(e) {}
+    }, 8000);
+  }
+  function stopSync() {
+    if (_syncInterval) clearInterval(_syncInterval);
+    _syncInterval = null;
+  }
+  function recalc(d) {
+    d.companyProfit = d.bookings.filter(b => b.completed).reduce((s,b) => s+b.payment, 0);
+    d.companyWorth = 12500 + d.companyProfit;
+  }
+  function fmt(n) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:0}).format(n); }
+  function esc(s) { return (s||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+  function switchTab(name, btn) {
+    document.querySelectorAll('.tab-section').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.main-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+name).classList.add('active');
+    if(btn) btn.classList.add('active');
+    if(name==='calendar') renderCalendar();
+  }
+
+  function renderApp() {
+    const d = loadData();
+    document.getElementById('roleBadge').innerText = currentRole==='admin' ? 'Admin — Full Access' : 'Worker — View Only';
+    renderFinance(d); renderTable(d); renderJobList(d);
+    document.getElementById('addJobCard').style.display = currentRole==='admin' ? 'block' : 'none';
+    document.getElementById('actionColHead').style.display = currentRole==='admin' ? '' : 'none';
+    if(document.getElementById('tab-calendar').classList.contains('active')) renderCalendar();
+  }
+
+  function renderFinance(d) {
+    const card = document.getElementById('financeCard');
+    if(currentRole!=='admin') {
+      card.innerHTML = `<h3>Overview</h3><div class="finance-row">
+        <div class="stat-box"><div class="stat-label">Upcoming</div><div class="stat-number">${d.bookings.filter(b=>!b.completed).length}</div></div>
+        <div class="stat-box"><div class="stat-label">Completed</div><div class="stat-number">${d.bookings.filter(b=>b.completed).length}</div></div>
+        <div class="stat-box"><div class="stat-label">Total Jobs</div><div class="stat-number">${d.bookings.length}</div></div>
+      </div>`;
+      return;
+    }
+    card.innerHTML = `<h3>Financial Overview</h3><div class="finance-row">
+      <div class="stat-box"><div class="stat-label">Total Profit</div><div class="stat-number">${fmt(d.companyProfit)}</div></div>
+      <div class="stat-box"><div class="stat-label">Company Worth</div><div class="stat-number">${fmt(d.companyWorth)}</div></div>
+      <div class="stat-box"><div class="stat-label">Total Jobs</div><div class="stat-number">${d.bookings.length}</div></div>
+    </div>`;
+  }
+
+  function renderTable(d) {
+    const tbody = document.getElementById('bookingTableBody');
+    const sorted = [...d.bookings].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    if(!sorted.length) { tbody.innerHTML=`<tr><td colspan="6" style="color:#444;text-align:center;padding:24px;">No bookings yet. Add your first job above.</td></tr>`; return; }
+    tbody.innerHTML = sorted.map(b => {
+      const badge = b.completed ? `<span class="paid-badge">Paid</span>` : `<span class="pending-badge">Pending</span>`;
+      const act = currentRole==='admin'
+        ? `<button class="action-btn" onclick="togglePaid(${b.id})">${b.completed?'Unmark':'Mark Paid'}</button><button class="remove-btn" onclick="deleteBkg(${b.id})">Remove</button>`
+        : `<span style="color:#333;">—</span>`;
+      return `<tr><td>${b.date}</td><td><strong style="color:#c9b97a;">${esc(b.clientName)}</strong></td><td style="color:#888;">${esc(b.jobDescription)}</td><td style="color:#c9b97a;font-weight:700;">${fmt(b.payment)}</td><td>${badge}</td><td>${act}</td></tr>`;
+    }).join('');
+  }
+
+  function renderJobList(d) {
+    const el = document.getElementById('jobListAdmin');
+    if(!el) return;
+    if(!d.bookings.length) { el.innerHTML=`<p style="color:#444;font-size:13px;">No jobs yet.</p>`; return; }
+    el.innerHTML = [...d.bookings].slice(-5).reverse().map(b=>`
+      <div class="job-item">
+        <div><strong>${esc(b.clientName)}</strong> &mdash; <span>${esc(b.jobDescription)}</span><br><span>${b.date} | ${fmt(b.payment)}</span></div>
+        <button class="remove-btn" onclick="deleteBkg(${b.id})">Remove</button>
+      </div>`).join('');
+  }
+
+  async function togglePaid(id) {
+    const d = loadData(); const b = d.bookings.find(x=>x.id==id);
+    if(b){b.completed=!b.completed;recalc(d);await saveData(d);renderApp();renderCalendar();}
+  }
+  async function deleteBkg(id) {
+    if(!confirm('Remove this booking?')) return;
+    const d = loadData(); d.bookings = d.bookings.filter(x=>x.id!=id);
+    recalc(d); await saveData(d); renderApp(); renderCalendar();
+  }
+
+  document.getElementById('createJobBtn').addEventListener('click', async ()=>{
+    const c=document.getElementById('clientName').value.trim();
+    const j=document.getElementById('jobDesc').value.trim();
+    const dt=document.getElementById('jobDate').value;
+    const p=parseFloat(document.getElementById('jobPayment').value);
+    if(!c||!j||!dt||isNaN(p)){alert('Please fill in all fields.');return;}
+    const d=loadData();
+    d.bookings.push({id:Date.now(),clientName:c,jobDescription:j,date:dt,payment:p,completed:false});
+    recalc(d);await saveData(d);
+    document.getElementById('clientName').value='';
+    document.getElementById('jobDesc').value='';
+    document.getElementById('jobDate').value='';
+    document.getElementById('jobPayment').value='';
+    renderApp();
+  });
+
+  function renderCalendar() {
+    const d = loadData(); const bookings = d.bookings;
+    const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    document.getElementById('calMonthLabel').textContent = months[calMonth]+' '+calYear;
+    const todayStr = new Date().toISOString().slice(0,10);
+    const firstDay = new Date(calYear,calMonth,1).getDay();
+    const daysInMonth = new Date(calYear,calMonth+1,0).getDate();
+    const daysInPrev = new Date(calYear,calMonth,0).getDate();
+    const monthBkgs = bookings.filter(b=>{const dt=new Date(b.date+'T00:00:00');return dt.getFullYear()===calYear&&dt.getMonth()===calMonth;});
+    const totalAmt=monthBkgs.reduce((s,b)=>s+b.payment,0);
+    const paidAmt=monthBkgs.filter(b=>b.completed).reduce((s,b)=>s+b.payment,0);
+    const pendingAmt=monthBkgs.filter(b=>!b.completed).reduce((s,b)=>s+b.payment,0);
+    const statsEl=document.getElementById('adminStats');
+    if(currentRole==='admin'){
+      statsEl.style.display='flex';
+      statsEl.innerHTML=`<div class="mini-stat"><div class="ms-label">Month Total</div><div class="ms-val">${fmt(totalAmt)}</div></div>
+        <div class="mini-stat"><div class="ms-label">Collected</div><div class="ms-val">${fmt(paidAmt)}</div></div>
+        <div class="mini-stat"><div class="ms-label">Pending</div><div class="ms-val amber">${fmt(pendingAmt)}</div></div>
+        <div class="mini-stat"><div class="ms-label">Jobs</div><div class="ms-val">${monthBkgs.length}</div></div>`;
+    } else { statsEl.style.display='none'; }
+    let cells='';
+    for(let i=0;i<firstDay;i++) cells+=`<div class="cal-cell other-month"><div class="day-num"><span>${daysInPrev-firstDay+1+i}</span></div></div>`;
+    for(let day=1;day<=daysInMonth;day++){
+      const mm=String(calMonth+1).padStart(2,'0'),dd=String(day).padStart(2,'0');
+      const dateStr=`${calYear}-${mm}-${dd}`;
+      const isToday=dateStr===todayStr;
+      const dayBkgs=bookings.filter(b=>b.date===dateStr);
+      const dayTotal=dayBkgs.reduce((s,b)=>s+b.payment,0);
+      const plus=currentRole==='admin'?`<span class="add-plus">+</span>`:'';
+      let inner=`<div class="day-num"><span>${day}</span>${plus}</div>`;
+      if(dayBkgs.length>0&&currentRole==='admin') inner+=`<div class="day-total">${fmt(dayTotal)}</div>`;
+      dayBkgs.forEach(b=>{
+        const cls=b.completed?'paid':'pending';
+        const dot=b.completed?'&#10003;':'&#9679;';
+        let bot='';
+        if(currentRole==='admin') bot=`<div class="chip-bottom"><span>${fmt(b.payment)}</span><span style="display:flex;gap:2px;"><button class="mark-btn" onclick="event.stopPropagation();togglePaid(${b.id})">${b.completed?'Paid':'Pay'}</button><button class="del-chip-btn" onclick="event.stopPropagation();deleteBkg(${b.id})">&#10005;</button></span></div>`;
+        inner+=`<div class="chip ${cls}"><span class="chip-job">${esc(b.jobDescription)}</span><span class="chip-name">${dot} ${esc(b.clientName)}</span>${bot}</div>`;
+      });
+      const click=currentRole==='admin'?`onclick="openModal('${dateStr}')"`:'' ;
+      cells+=`<div class="cal-cell${isToday?' today':''}${currentRole==='admin'?' clickable':''}" ${click}>${inner}</div>`;
+    }
+    const rem=(firstDay+daysInMonth)%7===0?0:7-(firstDay+daysInMonth)%7;
+    for(let i=1;i<=rem;i++) cells+=`<div class="cal-cell other-month"><div class="day-num"><span>${i}</span></div></div>`;
+    document.getElementById('calGrid').innerHTML=cells;
+  }
+
+  document.getElementById('calPrev').onclick=()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();};
+  document.getElementById('calNext').onclick=()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();};
+
+  function openModal(dateStr){
+    document.getElementById('mClient').value='';document.getElementById('mJob').value='';
+    document.getElementById('mDate').value=dateStr;document.getElementById('mAmt').value='';
+    const dt=new Date(dateStr+'T00:00:00');
+    document.getElementById('modalTitle').textContent='New Booking — '+dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    document.getElementById('modalOverlay').classList.add('open');
+  }
+  function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+  async function saveModalBooking(){
+    const c=document.getElementById('mClient').value.trim();
+    const j=document.getElementById('mJob').value.trim();
+    const dt=document.getElementById('mDate').value;
+    const a=parseFloat(document.getElementById('mAmt').value);
+    if(!c||!j||!dt||isNaN(a)){alert('Please fill in all fields.');return;}
+    const d=loadData();
+    d.bookings.push({id:Date.now(),clientName:c,jobDescription:j,date:dt,payment:a,completed:false});
+    recalc(d);await saveData(d);closeModal();renderApp();renderCalendar();
+  }
+  document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+  document.getElementById('loginBtn').addEventListener('click',doLogin);
+  document.getElementById('passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  async function doLogin(){
+    const role=document.getElementById('profileSelect').value;
+    const pwd=document.getElementById('passwordInput').value;
+    if(role==='admin'&&pwd===ADMIN_PASS){currentRole='admin';}
+    else if(role==='worker'&&pwd===WORKER_PASS){currentRole='worker';}
+    else{document.getElementById('loginError').innerText='Incorrect password. Please try again.';return;}
+    // Load latest shared data before rendering
+    await loadDataAsync();
+    document.getElementById('loginView').style.display='none';
+    document.getElementById('appView').style.display='block';
+    renderApp();
+    startSync();
+  }
+  document.getElementById('logoutButton').addEventListener('click',()=>{
+    currentRole=null;
+    stopSync();
+    document.getElementById('loginView').style.display='block';
+    document.getElementById('appView').style.display='none';
+    document.getElementById('passwordInput').value='';
+    document.getElementById('loginError').innerText='';
+  });
+  document.getElementById('appView').style.display='none';
+</script>
+</body>
+</html>
